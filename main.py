@@ -1,102 +1,44 @@
-import time
 import numpy as np
 from nes_py.wrappers import JoypadSpace
 import gym_super_mario_bros
 from gym_super_mario_bros.actions import RIGHT_ONLY
-from agent import DQNAgent
 from wrappers import wrapper
 
-'''
-# openai baselines
-from baselines import deepq
-from baselines import a2c
-from baselines import acktr
-from baselines import ppo2
-'''
 # stable baselines
 from stable_baselines import DQN, PPO2, A2C, ACKTR
-from stable_baselines.common.cmd_util import make_vec_env
-from stable_baselines.common.policies import MlpPolicy
+from stable_baselines.common.evaluation import evaluate_policy
 
+import tensorflow as tf
+# Suppress warnings
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 # Build env (first level, right only)
 env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
 env = JoypadSpace(env, RIGHT_ONLY)
 env = wrapper(env)
 
-# Parameters
-states = (84, 84, 4)
-actions = env.action_space.n
+models = [DQN.load("models/dqn")]
 
-# Agent
-agents = [DQNAgent(states=states, actions=actions, max_memory=100000, double_q=True)]
+model_names = ["deep q-learning"]
 
-# Episodes
-episodes = 500
-rewards = []
+for i in range(len(models)):
+    cr = 0
 
-# Timing
-start = time.time()
-step = 0
+    print("Learning to beat super mario bros using {}".format(model_names[i]))
 
-# Main loop
-for agent in agents:
-    for e in range(1, episodes + 1):
+    obs = env.reset() 
 
-        # Reset env
-        state = env.reset()
+    while True:
+        action, _states = models[i].predict(obs, deterministic=False)
+        obs, rewards, done, info = env.step(action)
+        cr += rewards
+        print("Reward: {}\t\t".format(cr), end='\r')
+        env.render()
+        if (done):
+            print("Finished an episode with total reward: ", cr)
+            cr = 0
+            break
 
-        # Reward
-        total_reward = 0
-        iter = 0
+    print(evaluate_policy(model, env, n_eval_episodes=10, deterministic=False, render=True))
 
-        # Play
-        while True:
-
-            # Run agent
-            action = agent.run(state=state)
-
-            # Perform action
-            next_state, reward, done, info = env.step(action=action)
-
-            # Remember
-            agent.add(experience=(state, next_state, action, reward, done))
-
-            # Replay
-            agent.learn()
-
-            # Total reward
-            total_reward += reward
-
-            # Update state
-            state = next_state
-
-            # Increment
-            iter += 1
-
-            # If done break loop
-            if done or info['flag_get']:
-                break
-
-        # Rewards
-        rewards.append(total_reward / iter)
-
-        # Print
-        if e % 1 == 0:
-            print('Episode {e} - '
-                'Frame {f} - '
-                'Frames/sec {fs} - '
-                'Epsilon {eps} - '
-                'Mean Reward {r}'.format(e=e,
-                                        f=agent.step,
-                                        fs=np.round((agent.step - step) / (time.time() - start)),
-                                        eps=np.round(agent.eps, 4),
-                                        r=np.mean(rewards[-100:])))
-            start = time.time()
-            step = agent.step
-
-    # Show env
-    env.render()
-
-    # Save rewards
-    # np.save('rewards.npy', rewards)
+    print("Done.")
