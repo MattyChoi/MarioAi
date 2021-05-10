@@ -58,7 +58,7 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 def run(run_name, existing_model):
 
     # Create log dir
-    log_dir = "../monitor_logs/"
+    log_dir = "./a2c_logs/"
     os.makedirs(log_dir, exist_ok=True)
 
     print("\n-----------------------Setting up environment-----------------------")
@@ -98,7 +98,7 @@ def run(run_name, existing_model):
 
     print("\n-----------------------Start Training-----------------------")
 
-    time_steps = 100000
+    time_steps = 500000
 
     with ProgressBarManager(time_steps) as progress_callback:
         model.learn(total_timesteps=time_steps,
