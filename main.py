@@ -1,7 +1,5 @@
 import numpy as np
-from nes_py.wrappers import JoypadSpace
 import gym_super_mario_bros
-from gym_super_mario_bros.actions import RIGHT_ONLY
 from wrappers import wrapper
 
 # stable baselines
@@ -14,12 +12,11 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 # Build env (first level, right only)
 env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
-env = JoypadSpace(env, RIGHT_ONLY)
 env = wrapper(env)
 
-models = [DQN.load("models/dqn")]
+models = [DQN.load("models/dqn"), A2C.load("models/a2c")]#, PPO2.load("models/ppo2")]
 
-model_names = ["deep q-learning"]
+model_names = ["deep q-learning", "actor-critic"]#, "proximal policy optimization"]
 
 for i in range(len(models)):
     cr = 0
@@ -27,6 +24,13 @@ for i in range(len(models)):
     print("Learning to beat super mario bros using {}".format(model_names[i]))
 
     obs = env.reset() 
+    env.render()
+    env.render()
+    env.render()
+    env.render()
+    env.render()
+    env.render()
+    env.render()
 
     while True:
         action, _states = models[i].predict(obs, deterministic=False)

@@ -13,37 +13,59 @@ import cv2
 import os
 import argparse
 
+
+
+
+
+from stable_baselines.common.atari_wrappers import FrameStack, WarpFrame, MaxAndSkipEnv, ClipRewardEnv, FireResetEnv
+from nes_py.wrappers import JoypadSpace
+from gym_super_mario_bros.actions import RIGHT_ONLY
+
+
+def wrapper(env):
+    """Apply a common set of wrappers for Atari games."""
+
+    # Use actions only in the actions.RIGHT_ONLY array
+    env = JoypadSpace(env, RIGHT_ONLY)
+
+    # Evaluate every kth frame and repeat action
+    env = MaxAndSkipEnv(env, skip=4)
+
+    # preprocessing
+    if 'FIRE' in env.unwrapped.get_action_meanings():
+       env = FireResetEnv(env)
+    env = WarpFrame(env)
+    env = FrameStack(env, 4)
+    env = ClipRewardEnv(env)
+    return env
+
+
+
+
 # Suppress warnings
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 def run(run_name, existing_model):
 
     # Create log dir
-    log_dir = "./monitor_logs/"
+    log_dir = "../monitor_logs/"
     os.makedirs(log_dir, exist_ok=True)
 
     print("\n-----------------------Setting up environment-----------------------")
+    
     env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
-    env = JoypadSpace(env, SIMPLE_MOVEMENT)
-    env = EpisodicLifeEnv(env)
-
-    # Preprocessing
-    env = WarpFrame(env)
-    env = FrameStack(env, n_frames = 4)
-
-    # Evaluate every kth frame and repeat action
-    env = MaxAndSkipEnv(env, skip = 8)
+    env = wrapper(env)
 
     # Logs will be saved in log_dir/monitor.csv
     env = Monitor(env, log_dir)
 
     # Save a checkpoint every 1000 steps
-    checkpoint_callback = CheckpointCallback(save_freq=25000, save_path='./models/',
+    checkpoint_callback = CheckpointCallback(save_freq=25000, save_path='../models/',
                                             name_prefix=run_name)
 
     eval_callback = EvalCallback(env,
-                                best_model_save_path='./models/',
-                                log_path='./models/',
+                                best_model_save_path='../models/',
+                                log_path='../models/',
                                 eval_freq=250000,
                                 deterministic=True,
                                 render=False)
@@ -52,7 +74,7 @@ def run(run_name, existing_model):
 
     if existing_model:
         try:
-            model = DQN.load(existing_model, env, tensorboard_log="./mario_tensorboard/")
+            model = DQN.load(existing_model, env, tensorboard_log="../mario_tensorboard/")
         except:
             print(f"{existing_model} does not exist!")
             exit(0)
@@ -70,7 +92,7 @@ def run(run_name, existing_model):
                     prioritized_replay_alpha=0.6,
                     train_freq=8,
                     target_network_update_freq=100000,
-                    tensorboard_log="./mario_tensorboard/"
+                    tensorboard_log="../mario_tensorboard/"
                 )
 
     print("\n-----------------------Start Training-----------------------")
@@ -85,12 +107,6 @@ def run(run_name, existing_model):
 
     print("\n---------------------Done! Saving Model---------------------")
     model.save("models/dqn".format(run_name))
-    env.render()
-
-
-
-
-
 
 
 def test_env(env, frame_by_frame=False):
