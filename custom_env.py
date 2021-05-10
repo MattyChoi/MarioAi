@@ -1,3 +1,5 @@
+#### Never Used, can use custom environment to modify reward function
+
 import gym_super_mario_bros
 from gym.spaces import Box
 from gym import Wrapper
