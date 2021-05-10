@@ -115,20 +115,10 @@ def test_env(env, frame_by_frame=False):
         print("reward:", rewards)
         print("timestep:", info['timestep'])
 
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--train-existing", nargs='?', help="Train existing model")
     args = parser.parse_args()
-
     run("dqn", args.train_existing)
     run("a2c", args.train_existing)
     run("ppo2", args.train_existing)
