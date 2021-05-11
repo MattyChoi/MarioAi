@@ -6,17 +6,19 @@ from gym_super_mario_bros.actions import RIGHT_ONLY
 
 
 def wrapper(env):
-    """Apply a common set of wrappers for Atari games."""
+   """Apply a common set of wrappers for Atari games."""
 
-    # Use actions only in the actions.RIGHT_ONLY array
-    env = JoypadSpace(env, RIGHT_ONLY)
+   # Use actions only in the actions.RIGHT_ONLY array
+   env = JoypadSpace(env, RIGHT_ONLY)
 
-    # Evaluate every kth frame and repeat action
-    env = MaxAndSkipEnv(env, skip=4)
+   # Evaluate every kth frame and repeat action
+   env = MaxAndSkipEnv(env, skip=4)
 
-    # preprocessing
-    if 'FIRE' in env.unwrapped.get_action_meanings():
-       env = FireResetEnv(env)
-    env = WarpFrame(env)
-    env = FrameStack(env, 4)
-    return env
+   # preprocessing
+   if 'FIRE' in env.unwrapped.get_action_meanings():
+      env = FireResetEnv(env)
+
+   env = WarpFrame(env)
+   env = FrameStack(env, 4)
+   env = ClipRewardEnv(env)
+   return env

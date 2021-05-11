@@ -122,5 +122,5 @@ if __name__ == "__main__":
     parser.add_argument("--train-existing", nargs='?', help="Train existing model")
     args = parser.parse_args()
     run("dqn", args.train_existing)
-    #run("a2c", args.train_existing)
-    #run("ppo2", args.train_existing)
+    run("a2c", args.train_existing)
+    run("ppo2", args.train_existing)

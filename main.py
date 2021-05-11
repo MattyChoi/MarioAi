@@ -18,22 +18,15 @@ from train import *
 env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
 env = wrapper(env)
 
-
+'''
 # create dqn, a2c, and ppo2 models
 parser = argparse.ArgumentParser()
 parser.add_argument("--train-existing", nargs='?', help="Train existing model")
 args = parser.parse_args()
-#run("dqn", args.train_existing)
+run("dqn", args.train_existing)
 run("a2c", args.train_existing)
-#run("ppo2", args.train_existing)
-
-
+run("ppo2", args.train_existing)
 '''
-models = [DQN.load("models/dqn"), A2C.load("models/a2c")], PPO2.load("models/ppo2")]
-
-model_names = ["deep q-learning", "actor-critic"], "proximal policy optimization"]
-'''
-
 
 models = [DQN.load("models/dqn"), A2C.load("models/a2c"), PPO2.load("models/ppo2")]
 
@@ -46,12 +39,6 @@ for i in range(len(models)):
     print("Learning to beat super mario bros using {}".format(model_names[i]))
 
     obs = env.reset() 
-    env.render()
-    env.render()
-    env.render()
-    env.render()
-    env.render()
-    env.render()
     env.render()
 
     while True:
