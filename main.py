@@ -23,14 +23,22 @@ env = wrapper(env)
 parser = argparse.ArgumentParser()
 parser.add_argument("--train-existing", nargs='?', help="Train existing model")
 args = parser.parse_args()
-run("dqn", args.train_existing)
+#run("dqn", args.train_existing)
 run("a2c", args.train_existing)
-run("ppo2", args.train_existing)
+#run("ppo2", args.train_existing)
 
 
-models = [DQN.load("models/dqn"), A2C.load("models/a2c")]#, PPO2.load("models/ppo2")]
+'''
+models = [DQN.load("models/dqn"), A2C.load("models/a2c")], PPO2.load("models/ppo2")]
 
-model_names = ["deep q-learning", "actor-critic"]#, "proximal policy optimization"]
+model_names = ["deep q-learning", "actor-critic"], "proximal policy optimization"]
+'''
+
+
+models = [DQN.load("models/dqn"), A2C.load("models/a2c"), PPO2.load("models/ppo2")]
+
+model_names = ["deep q-learning", "actor-critic", "proximal policy optimization"]
+
 
 for i in range(len(models)):
     cr = 0

@@ -23,6 +23,8 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 def run(run_name, existing_model):
 
+    time_steps = 500000
+
     # Create log dir
     log_dir = "./{}_logs/".format(run_name)
     os.makedirs(log_dir, exist_ok=True)
@@ -35,7 +37,7 @@ def run(run_name, existing_model):
     # Logs will be saved in log_dir/monitor.csv
     env = Monitor(env, log_dir)
 
-    # Save a checkpoint every 1000 steps
+    # Save a checkpoint every 25000 steps
     checkpoint_callback = CheckpointCallback(save_freq=25000, save_path='./models/',
                                             name_prefix=run_name)
 
@@ -88,8 +90,6 @@ def run(run_name, existing_model):
 
     print("\n-----------------------Start Training-----------------------")
 
-    time_steps = 500000
-
     with ProgressBarManager(time_steps) as progress_callback:
         model.learn(total_timesteps=time_steps,
                     log_interval=1,
@@ -115,10 +115,12 @@ def test_env(env, frame_by_frame=False):
         print("reward:", rewards)
         print("timestep:", info['timestep'])
 
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--train-existing", nargs='?', help="Train existing model")
     args = parser.parse_args()
     run("dqn", args.train_existing)
-    run("a2c", args.train_existing)
-    run("ppo2", args.train_existing)
+    #run("a2c", args.train_existing)
+    #run("ppo2", args.train_existing)
